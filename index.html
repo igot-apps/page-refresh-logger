@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto Refresh Logger</title>
+<script>
+  // Function to initialize or reset the counter and log
+  function initialize(reset = false) {
+    if (reset || !localStorage.getItem('refreshCount')) {
+      localStorage.setItem('refreshCount', 0);
+    }
+    if (reset || !localStorage.getItem('refreshLog')) {
+      localStorage.setItem('refreshLog', JSON.stringify([]));
+    }
+    if (reset) {
+      updateDisplay(); // Update display after resetting
+    }
+  }
+
+  // Function to log a refresh
+  function logRefresh() {
+    const count = parseInt(localStorage.getItem('refreshCount'), 10) + 1;
+    localStorage.setItem('refreshCount', count);
+    const log = JSON.parse(localStorage.getItem('refreshLog'));
+    log.push(new Date().toISOString());
+    localStorage.setItem('refreshLog', JSON.stringify(log));
+    updateDisplay();
+  }
+
+  // Function to update the display with the current count and log
+  function updateDisplay() {
+    const count = parseInt(localStorage.getItem('refreshCount'), 10);
+    const log = JSON.parse(localStorage.getItem('refreshLog'));
+    const display = document.getElementById('display');
+    display.innerHTML = `
+      <p>Total Refresh Count: ${count}</p>
+      <p>Refresh Log:</p>
+      <ul>
+        ${log.map((timestamp) => `<li>${new Date(timestamp).toLocaleString()}</li>`).join('')}
+      </ul>
+    `;
+  }
+
+  // Function to clear logs and reset the app
+  function clearLogs() {
+    initialize(true); // Pass true to reset
+  }
+
+  // Initialize on page load
+  window.onload = function() {
+    initialize(); // Initialize with current data
+    logRefresh(); // Log the current page load as a refresh
+  };
+</script>
+</head>
+<body>
+  <h1>Auto Refresh Logger</h1>
+  <button onclick="clearLogs()">Clear Logs</button>
+  <div id="display"></div>
+</body>
+</html>
